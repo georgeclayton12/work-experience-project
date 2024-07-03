@@ -27,10 +27,12 @@ public class GameManager : MonoBehaviour
     public void NewGame()
     {
         SceneManager.UnloadSceneAsync("Menu ui");
+        SceneManager.LoadScene("Gameplay", LoadSceneMode.Additive);
+       
     }
 
     public string CreateSeed()
-    { 
+    {
         throw new NotImplementedException();
     }
 
@@ -41,6 +43,7 @@ public class GameManager : MonoBehaviour
 
     public void PopulateMap(Texture2D mapData)
     {
-        
+
     }
+
 }
