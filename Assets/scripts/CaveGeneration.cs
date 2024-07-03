@@ -6,6 +6,8 @@ using System.Net.NetworkInformation;
 using UnityEditor.Experimental.GraphView;
 using System.ComponentModel;
 
+// https://www.youtube.com/watch?v=yOgIncKp0BE&list=PLFt_AvWsXl0eZgMK_DT5_biRkWXftAOf9&index=2
+
 public class CaveGeneration : MonoBehaviour
 {
     public int width;
@@ -31,13 +33,13 @@ public class CaveGeneration : MonoBehaviour
         DrawElements();
     }
 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))// when mouse is pressed call function
-        {
-            GenerateMap();
-        }
-    }
+    //void Update()
+    //{
+    //    if (Input.GetMouseButtonDown(0))// when mouse is pressed call function
+    //    {
+    //        GenerateMap();
+    //    }
+    //}
 
     void GenerateMap()
     {

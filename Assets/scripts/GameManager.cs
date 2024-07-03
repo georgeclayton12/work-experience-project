@@ -31,6 +31,11 @@ public class GameManager : MonoBehaviour
        
     }
 
+    public void SpawnPlayer(Vector2 position)
+    {
+        
+    }
+
     public string CreateSeed()
     {
         throw new NotImplementedException();
