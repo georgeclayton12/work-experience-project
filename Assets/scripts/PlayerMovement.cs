@@ -6,7 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     private float horizontal;
     private float speed = 8f;
-    private float jumpingPower = 5f;
+    [SerializeField] private float jumpingPower = 5f;
     private bool isFacingRight = true;
 
     [SerializeField] private Rigidbody2D rb;
@@ -28,8 +28,17 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
         }
 
+        // if I click with the right mouse button
+        // Call the mine fucntion
+
         Flip();
     }
+
+    // Mine function
+    // Do a 2D raycast from the play towards the mouse point
+    // if that hits an object
+    // if that object is dirt
+    // destroy that dirt piece game object
 
     private void FixedUpdate()
     {
@@ -49,7 +58,6 @@ public class PlayerMovement : MonoBehaviour
             LocalScale.x *= -1f;
             transform.localScale = LocalScale;
 
-        }
-       
+        }  
     }
 }

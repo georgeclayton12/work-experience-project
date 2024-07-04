@@ -34,7 +34,6 @@ public class Menu : MonoBehaviour
 
     private void NewGame()
     {
-        Debug.Log("newgame");
         GameManager.Instance.NewGame();
     }
 

@@ -1,10 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Net.NetworkInformation;
-using UnityEditor.Experimental.GraphView;
-using System.ComponentModel;
 
 // https://www.youtube.com/watch?v=yOgIncKp0BE&list=PLFt_AvWsXl0eZgMK_DT5_biRkWXftAOf9&index=2
 
@@ -25,12 +21,15 @@ public class CaveGeneration : MonoBehaviour
     public int randomFillPercent; // how much is going to be filled with wall compared to space 
 
     int[,] map; //container 
+    private List<Vector3> spawnPositions = new();
 
     void Start()
     {
         container = new GameObject();
         GenerateMap(); // calling the function as soon as this script is loaded
         DrawElements();
+        int index = UnityEngine.Random.Range(0, spawnPositions.Count);
+        GameManager.Instance.SpawnPlayer(spawnPositions[index]);
     }
 
     //void Update()
@@ -139,17 +138,28 @@ public class CaveGeneration : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                for (int y = 0; y < height; y++) 
+                for (int y = 0; y < height; y++)
                 {
+                    Vector3 position = new Vector3(-width / 2 + x + .5f, -height / 2 + y + .5f, 0);
+
                     if (map[x, y] == 1)
                     {
-                        Instantiate(dirtBlock, new Vector3(-width / 2 + x + .5F, -height / 2 + y + .5f, 0), Quaternion.identity, container.transform);
+                        var go = Instantiate(dirtBlock, position, Quaternion.identity, container.transform);
+                        go.name = $"Block: {x},{y}";
+                    }
+                    else {
+                        // If its in range of out block
+                        // && and if the line below block is a solid block
+                        if (y - 1 > 0 && map[x, y - 1] == 1) 
+                        {
+                            spawnPositions.Add(position);    
+                        }
                     }
                 }
-            }
+            }           
         }
     }
-
+    
     //void OnDrawGizmos()
     //{
     //    if (map != null)

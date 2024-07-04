@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     // Declaring that we only want a single insrtance of this class
     // This is using the singleton pattern
     public static GameManager Instance;
+
     private void Awake()
     {
         // If there is not game manager yet, let this class be it
@@ -20,20 +21,20 @@ public class GameManager : MonoBehaviour
         else if (GameManager.Instance != this)
         {
             Destroy(this);
-            Debug.LogError("There where multoiple game managers in the scene");
+            Debug.LogError("There where multiple game managers in the scene");
         }
     }
 
     public void NewGame()
     {
         SceneManager.UnloadSceneAsync("Menu ui");
-        SceneManager.LoadScene("Gameplay", LoadSceneMode.Additive);
-       
+        SceneManager.LoadScene("Gameplay", LoadSceneMode.Additive);  
     }
 
-    public void SpawnPlayer(Vector2 position)
+    public void SpawnPlayer(Vector3 pos)
     {
-        
+        GameObject player = Resources.Load<GameObject>("Player");
+        Instantiate(player, pos, Quaternion.identity);
     }
 
     public string CreateSeed()
