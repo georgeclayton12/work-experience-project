@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1358255810577816249}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -216,6 +216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4c9c6562efb89d488f2154b5683d54b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  view: {fileID: 1358255810577816250}
   jumpingPower: 15
   rb: {fileID: 1358255811555477014}
   groundCheck: {fileID: 1358255810633829195}
@@ -267,5 +268,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.9, y: 0.8}
   m_EdgeRadius: 0

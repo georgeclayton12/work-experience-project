@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEditor;
 
 // https://www.youtube.com/watch?v=yOgIncKp0BE&list=PLFt_AvWsXl0eZgMK_DT5_biRkWXftAOf9&index=2
 
 public class CaveGeneration : MonoBehaviour
 {
+    [Header("Cave Options")]
     public int width;
     public int height;
     public int passes;
@@ -14,22 +16,37 @@ public class CaveGeneration : MonoBehaviour
     public bool useRandomSeed;
 
     public GameObject dirtBlock;
-
-    private GameObject container;
+    public GameObject bedrock;
 
     [Range(0, 100)]//percentage 
     public int randomFillPercent; // how much is going to be filled with wall compared to space 
 
+    [Header("Water Options")]
+    [SerializeField] private int minDepth = 3;
+    [SerializeField] private int maxDepth = 5;
+    [SerializeField] private int minWidth = 5;
+    [SerializeField] private int maxWidth = 10;
+
+    private GameObject container;
+
+
     int[,] map; //container 
     private List<Vector3> spawnPositions = new();
+    private List<Vector3> waterPools = new();
 
     void Start()
     {
         container = new GameObject();
         GenerateMap(); // calling the function as soon as this script is loaded
         DrawElements();
+
+        var pos = waterPools[UnityEngine.Random.Range(0, waterPools.Count)];
+
+        Instantiate(bedrock, pos, Quaternion.identity);
+
         int index = UnityEngine.Random.Range(0, spawnPositions.Count);
         GameManager.Instance.SpawnPlayer(spawnPositions[index]);
+
     }
 
     //void Update()
@@ -136,11 +153,16 @@ public class CaveGeneration : MonoBehaviour
     {
         if (map != null)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < width; x++) //if x ==0 or x = 50 
             {
                 for (int y = 0; y < height; y++)
                 {
                     Vector3 position = new Vector3(-width / 2 + x + .5f, -height / 2 + y + .5f, 0);
+                    if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
+                    {
+                        var go = Instantiate(bedrock, position, Quaternion.identity, container.transform);
+                        continue;
+                    }
 
                     if (map[x, y] == 1)
                     {
@@ -152,12 +174,27 @@ public class CaveGeneration : MonoBehaviour
                         // && and if the line below block is a solid block
                         if (y - 1 > 0 && map[x, y - 1] == 1) 
                         {
-                            spawnPositions.Add(position);    
+                            spawnPositions.Add(position);   
+                        }
+
+                        if (CouldHaveWater(x,y))
+                        {
+                            waterPools.Add(position);
                         }
                     }
                 }
             }           
         }
+    }
+
+    private bool CouldHaveWater(int x, int y)
+    {
+        return true;
+    }
+
+    void SpwanWater()
+    {
+
     }
     
     //void OnDrawGizmos()

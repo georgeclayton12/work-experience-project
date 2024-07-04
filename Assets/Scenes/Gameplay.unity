@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 1814280739}
   - component: {fileID: 1814280738}
   m_Layer: 0
-  m_Name: Square
+  m_Name: bg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -242,7 +242,12 @@ MonoBehaviour:
   seed: 
   useRandomSeed: 1
   dirtBlock: {fileID: 3116480819630933590, guid: 4e1a0baa5fd764a4998a892a34438757, type: 3}
+  bedrock: {fileID: 2317532517643484419, guid: 3020c18b20f532745af5a76779a441d0, type: 3}
   randomFillPercent: 50
+  minDepth: 2
+  maxDepth: 5
+  minWidth: 5
+  maxWidth: 10
 --- !u!4 &1867576682
 Transform:
   m_ObjectHideFlags: 0
