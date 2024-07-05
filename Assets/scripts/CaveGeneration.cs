@@ -4,7 +4,7 @@ using System;
 using UnityEditor;
 
 // https://www.youtube.com/watch?v=yOgIncKp0BE&list=PLFt_AvWsXl0eZgMK_DT5_biRkWXftAOf9&index=2
-
+//https://www.youtube.com/watch?v=v7yyZZjF1z4&list=PLFt_AvWsXl0eZgMK_DT5_biRkWXftAOf9&index=1
 public class CaveGeneration : MonoBehaviour
 {
     [Header("Cave Options")]
@@ -23,7 +23,7 @@ public class CaveGeneration : MonoBehaviour
     public int randomFillPercent; // how much is going to be filled with wall compared to space 
 
     [Header("Water Options")]
-    [SerializeField] private int minDepth = 3;
+    [SerializeField] private int minDepth = 3; 
     [SerializeField] private int maxDepth = 10;
     [SerializeField] private int minWidth = 5;
     [SerializeField] private int maxWidth = 10;
@@ -155,43 +155,44 @@ public class CaveGeneration : MonoBehaviour
     {
         if (map != null)
         {
-            for (int x = 0; x < width; x++) //if x ==0 or x = 50 
+            for (int x = 0; x < width; x++) //go across the x value of the map  
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < height; y++)//go across the y value of the map 
                 {
-                    Vector3 position = new Vector3(-width / 2 + x + .5f, -height / 2 + y + .5f, 0);
-                    if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
+                    Vector3 position = new Vector3(-width / 2 + x + .5f, -height / 2 + y + .5f, 0); // find vector of given position 
+                    if (x == 0 || x == width - 1 || y == 0 || y == height - 1)//if near the edge of map 
                     {
-                        var go = Instantiate(bedrock, position, Quaternion.identity, container.transform);
+                        var go = Instantiate(bedrock, position, Quaternion.identity, container.transform); //spawn bedrock 
                         continue;
                     }
 
-                    if (map[x, y] == 1)
+                    if (map[x, y] == 1) //if position x,y is a one then it is a wall 
                     {
-                        var go = Instantiate(dirtBlock, position, Quaternion.identity, container.transform);
+                        var go = Instantiate(dirtBlock, position, Quaternion.identity, container.transform);//spawn in dirt on this vector 
                         go.name = $"Block: {x},{y}";
                     }
                     else {
                         // If its in range of out block
                         // && and if the line below block is a solid block
-                        if (y - 1 > 0 && map[x, y - 1] == 1)
+                        if (y - 1 > 0 && map[x, y - 1] == 1) //if the given position is inside the map and one below it is a dirt block  
                         {
-                            spawnPositions.Add(position);
+                            spawnPositions.Add(position);//add the potential position into the given list 
                         }
 
-                        if (VolumeTest(x, y, out WaterVolume volume))
+                        if (VolumeTest(x, y, out WaterVolume volume)) // if value gotten 
                         {
-                            waterPools.Add(volume);
+                            waterPools.Add(volume); //add the position to the waterpools list 
                         }
                     }
                 }
             }
         }
     }
-
+    //not sure what this does use chatgpt on it 
     private bool VolumeTest(int x, int y, out WaterVolume volume)
     {
         if (!VolumeWidth(x, y, out volume))
+            
         {
             return false;
         }
@@ -208,23 +209,23 @@ public class CaveGeneration : MonoBehaviour
     {
         bool hasFoundMinDepth = false;
 
-        foreach (int[] surface in volume.SurfaceLocations)
+        foreach (int[] surface in volume.SurfaceLocations)//for each location on the surface 
         {
-            for (int i = 0; i < maxDepth; i++)
+            for (int i = 0; i < maxDepth; i++) //from 0 to however large the max depth is 
             {
-                if (map[surface[0], surface[1] - i] == 0)
+                if (map[surface[0], surface[1] - i] == 0)// if the given coordinates are open spaec 
                 {
-                    volume.VolumeBlocks.Add(new int[] { surface[0], surface[1] - i });
-                    if(i == maxDepth - 1)
+                    volume.VolumeBlocks.Add(new int[] { surface[0], surface[1] - i });//add coordinates to list Volumeblocks
+                    if(i == maxDepth - 1)//if we reach max depth 
                     {
                         Debug.Log("Max depth reached");
-                        return false;
+                        return false;// can not spawn here 
                     }
 
                     continue;
                 }
 
-                if (map[surface[0], surface[1] - i] == 1)
+                if (map[surface[0], surface[1] - i] == 1)//if we hit a wall we have 
                 {
                     // Found the bottom
                     if (i > minDepth)
@@ -237,55 +238,55 @@ public class CaveGeneration : MonoBehaviour
             }
         }
 
-        return hasFoundMinDepth;
+        return hasFoundMinDepth;// return true if we have reached the mininum depth 
     }
 
     private bool VolumeWidth(int x, int y, out WaterVolume volume)
     {
-        int xLeftOffset = 1;
-        int xRightOffset = 1;
-        volume = new WaterVolume();
-        volume.SurfaceLocations.Add(new int[] { x, y });
+        int xLeftOffset = 1;//left and right offset 
+        int xRightOffset = 1;//going in both directions 
+        volume = new WaterVolume();//go to this class in water volume.cs
+        volume.SurfaceLocations.Add(new int[] { x, y });//add all surfaces to list 
 
-        for (int i = 0; i < maxWidth; i++)
+        for (int i = 0; i < maxWidth; i++) //range is how big the max width is i +1 
         {
-            if (map[x - xLeftOffset, y] == 0)
+            if (map[x - xLeftOffset, y] == 0)// if coordinates = open space 
             {
-                volume.SurfaceLocations.Add(new int[] { x - xLeftOffset, y });
-                xLeftOffset++;
+                volume.SurfaceLocations.Add(new int[] { x - xLeftOffset, y });//add those coordinates to the surface locations list  
+                xLeftOffset++;//offset plus one 
             }
 
-            if (map[x + xRightOffset, y] == 0)
+            if (map[x + xRightOffset, y] == 0) // if coordinates = open space 
             {
-                volume.SurfaceLocations.Add(new int[] { x + xRightOffset, y });
-                xRightOffset++;
+            volume.SurfaceLocations.Add(new int[] { x + xRightOffset, y });//add those coordinates to surface location list 
+                xRightOffset++;//offset plus one 
             }
 
             if (map[x - xLeftOffset, y] == 1 
-                && map[x + xRightOffset, y] == 1 
-                && volume.SurfaceLocations.Count >= minWidth)
+                && map[x + xRightOffset, y] == 1 // if we have hit walls on both sides 
+                && volume.SurfaceLocations.Count >= minWidth)//and our number of walls is greater the the mid width 
             {
-                return true;
+                return true;//can spawn here 
             }
         }
 
-        return false;
+        return false;//otherwise if we surpass midwidth and we have not hit walls with both of our "pointers" then we can not spawn water here 
     }
 
     private void SpawnWater()
     {
-        if (waterPools.Count <= 0)
+        if (waterPools.Count <= 0)// if there are no water pool spawn locations 
         {
-            Debug.LogWarning("We cannot spawn an water on this seed");
+            Debug.LogWarning("We cannot spwn water on this seed");
             return;
         }
 
-        List<int[]> cords = waterPools[UnityEngine.Random.Range(0, waterPools.Count)].GetVolume();
+        List<int[]> cords = waterPools[UnityEngine.Random.Range(0, waterPools.Count)].GetVolume();//get a random location where we can spawn water 
 
-        foreach (int[] cord in cords)
+        foreach (int[] cord in cords)//for each location 
         {
             Vector3 position = new Vector3(-width / 2 + cord[0] + .5f, -height / 2 + cord[1] + .5f, 0);
-            Instantiate(waterBlock, position, Quaternion.identity, waterContainer.transform);
+            Instantiate(waterBlock, position, Quaternion.identity, waterContainer.transform);//we spawn a water block at that location 
         }
     }
     
