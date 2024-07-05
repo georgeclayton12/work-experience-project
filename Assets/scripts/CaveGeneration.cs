@@ -17,32 +17,34 @@ public class CaveGeneration : MonoBehaviour
 
     public GameObject dirtBlock;
     public GameObject bedrock;
+    public GameObject waterBlock;
 
     [Range(0, 100)]//percentage 
     public int randomFillPercent; // how much is going to be filled with wall compared to space 
 
     [Header("Water Options")]
     [SerializeField] private int minDepth = 3;
-    [SerializeField] private int maxDepth = 5;
+    [SerializeField] private int maxDepth = 10;
     [SerializeField] private int minWidth = 5;
     [SerializeField] private int maxWidth = 10;
 
+    [SerializeField] private int minVolume = 20;
+    [SerializeField] private int maxVolume = 40;
+
     private GameObject container;
+    private GameObject waterContainer;
 
-
-    int[,] map; //container 
+    private int[,] map; //container 
     private List<Vector3> spawnPositions = new();
-    private List<Vector3> waterPools = new();
+    private List<WaterVolume> waterPools = new();
 
     void Start()
     {
         container = new GameObject();
+        waterContainer = new GameObject("Water Container");
         GenerateMap(); // calling the function as soon as this script is loaded
         DrawElements();
-
-        var pos = waterPools[UnityEngine.Random.Range(0, waterPools.Count)];
-
-        Instantiate(bedrock, pos, Quaternion.identity);
+        SpawnWater();
 
         int index = UnityEngine.Random.Range(0, spawnPositions.Count);
         GameManager.Instance.SpawnPlayer(spawnPositions[index]);
@@ -68,7 +70,7 @@ public class CaveGeneration : MonoBehaviour
             SmoothMap();
         }
     }
-   
+
     void RandomFillMap()
     {
         Debug.Log("This is generating the map");
@@ -84,7 +86,7 @@ public class CaveGeneration : MonoBehaviour
         {
             for (int y = 0; y < height; y++) //setting up size of map height
             {
-                if (x==0||x==width-1 || y==0 ||y==height-1) 
+                if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
                 {
                     map[x, y] = 1;// If pixel is near the borders of our map then they are automatticaly set to black (wall)
                 }
@@ -92,7 +94,7 @@ public class CaveGeneration : MonoBehaviour
                 {
                     // map[x, y] = (prng.Next(0, 100) < randomFillPercent) ? 1 : 0;// the random fill percentage if the number is greate then it it is a wall if it is not it is open space 
                     int randomNum = prng.Next(0, 100);
-                    if (randomNum< randomFillPercent)
+                    if (randomNum < randomFillPercent)
                     {
                         map[x, y] = 1;
                     }
@@ -100,8 +102,8 @@ public class CaveGeneration : MonoBehaviour
                     {
                         map[x, y] = 0;
                     }
-                }               
-            }   
+                }
+            }
         }
     }
 
@@ -113,23 +115,23 @@ public class CaveGeneration : MonoBehaviour
             {
                 int neighbourWallTiles = GetSurroundingWallCount(x, y);//shows us the amount of wall tiles around the given tile 
 
-                if (neighbourWallTiles > 4) { 
-                
+                if (neighbourWallTiles > 4) {
+
                     map[x, y] = 1; // if there are more than 4 walls surrounding then the tile that we is at the center becomes a wall
                 }
-                else if (neighbourWallTiles <4)
+                else if (neighbourWallTiles < 4)
                 {
                     map[x, y] = 0;// if there are less than 4 walls surrounding then the tile that is at the center becomes open space 
                 }
-                
+
             }
         }
     }
 
-    int GetSurroundingWallCount(int gridX,int gridY)
+    int GetSurroundingWallCount(int gridX, int gridY)
     {
         int wallCount = 0;
-        for (int neighbourX = gridX - 1;neighbourX <= gridX +1;neighbourX++)// iterating through a 3x3 grid centered on grid [x.y]
+        for (int neighbourX = gridX - 1; neighbourX <= gridX + 1; neighbourX++)// iterating through a 3x3 grid centered on grid [x.y]
         {
             for (int neighbourY = gridY - 1; neighbourY <= gridY + 1; neighbourY++) //looking at all neighbours 
             {
@@ -144,7 +146,7 @@ public class CaveGeneration : MonoBehaviour
                 {
                     wallCount++;
                 }
-            }    
+            }
         }
         return wallCount;
     }
@@ -172,29 +174,119 @@ public class CaveGeneration : MonoBehaviour
                     else {
                         // If its in range of out block
                         // && and if the line below block is a solid block
-                        if (y - 1 > 0 && map[x, y - 1] == 1) 
+                        if (y - 1 > 0 && map[x, y - 1] == 1)
                         {
-                            spawnPositions.Add(position);   
+                            spawnPositions.Add(position);
                         }
 
-                        if (CouldHaveWater(x,y))
+                        if (VolumeTest(x, y, out WaterVolume volume))
                         {
-                            waterPools.Add(position);
+                            waterPools.Add(volume);
                         }
                     }
                 }
-            }           
+            }
         }
     }
 
-    private bool CouldHaveWater(int x, int y)
+    private bool VolumeTest(int x, int y, out WaterVolume volume)
     {
+        if (!VolumeWidth(x, y, out volume))
+        {
+            return false;
+        }
+
+        if (!Depth(ref volume))
+        {
+            return false;
+        }
+
         return true;
     }
 
-    void SpwanWater()
+    private bool Depth(ref WaterVolume volume)
     {
+        bool hasFoundMinDepth = false;
 
+        foreach (int[] surface in volume.SurfaceLocations)
+        {
+            for (int i = 0; i < maxDepth; i++)
+            {
+                if (map[surface[0], surface[1] - i] == 0)
+                {
+                    volume.VolumeBlocks.Add(new int[] { surface[0], surface[1] - i });
+                    if(i == maxDepth - 1)
+                    {
+                        Debug.Log("Max depth reached");
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                if (map[surface[0], surface[1] - i] == 1)
+                {
+                    // Found the bottom
+                    if (i > minDepth)
+                    {
+                        hasFoundMinDepth = true;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return hasFoundMinDepth;
+    }
+
+    private bool VolumeWidth(int x, int y, out WaterVolume volume)
+    {
+        int xLeftOffset = 1;
+        int xRightOffset = 1;
+        volume = new WaterVolume();
+        volume.SurfaceLocations.Add(new int[] { x, y });
+
+        for (int i = 0; i < maxWidth; i++)
+        {
+            if (map[x - xLeftOffset, y] == 0)
+            {
+                volume.SurfaceLocations.Add(new int[] { x - xLeftOffset, y });
+                xLeftOffset++;
+            }
+
+            if (map[x + xRightOffset, y] == 0)
+            {
+                volume.SurfaceLocations.Add(new int[] { x + xRightOffset, y });
+                xRightOffset++;
+            }
+
+            if (map[x - xLeftOffset, y] == 1 
+                && map[x + xRightOffset, y] == 1 
+                && volume.SurfaceLocations.Count >= minWidth)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void SpawnWater()
+    {
+        if (waterPools.Count <= 0)
+        {
+            Debug.LogWarning("We cannot spawn an water on this seed");
+            return;
+        }
+
+        List<int[]> cords = waterPools[UnityEngine.Random.Range(0, waterPools.Count)].GetVolume();
+
+        foreach (int[] cord in cords)
+        {
+            Vector3 position = new Vector3(-width / 2 + cord[0] + .5f, -height / 2 + cord[1] + .5f, 0);
+            Instantiate(waterBlock, position, Quaternion.identity, waterContainer.transform);
+        }
     }
     
     //void OnDrawGizmos()

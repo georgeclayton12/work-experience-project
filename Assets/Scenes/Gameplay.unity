@@ -243,11 +243,14 @@ MonoBehaviour:
   useRandomSeed: 1
   dirtBlock: {fileID: 3116480819630933590, guid: 4e1a0baa5fd764a4998a892a34438757, type: 3}
   bedrock: {fileID: 2317532517643484419, guid: 3020c18b20f532745af5a76779a441d0, type: 3}
+  waterBlock: {fileID: 5495166369555541715, guid: f2feccd3f55c8d14e86dd59ca6d8d4ce, type: 3}
   randomFillPercent: 50
-  minDepth: 2
-  maxDepth: 5
+  minDepth: 3
+  maxDepth: 10
   minWidth: 5
   maxWidth: 10
+  minVolume: 20
+  maxVolume: 40
 --- !u!4 &1867576682
 Transform:
   m_ObjectHideFlags: 0
